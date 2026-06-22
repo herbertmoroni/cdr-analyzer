@@ -1,26 +1,31 @@
 # Overview
 
-{Important!  Do not say in this section that this is college assignment.  Talk about what you are trying to accomplish as a software engineer to further your learning.}
+CDR Analyzer is a console-based data analysis pipeline written in Erlang. It processes a
+real-world Call Detail Record dataset and produces an investigation summary printed to the
+terminal — activity rankings, tower statistics, and duration classification.
 
-{Provide a description for the software that you wrote to demonstrate the Erlang language.}
+The domain irony is real — CDR data analyzed in the language that literally powers telecom
+switches worldwide.
 
-{Describe your purpose for writing this software.}
-
-{Provide a link to your YouTube demonstration.  It should be a 4-5 minute demo of the software running and a walkthrough of the code.  Focus should be on sharing what you learned about the language syntax.}
+The CDR dataset analyzed here is literally the kind of data a real kidnapping investigation
+uses — cell tower pings, timestamps, movement patterns. This is a toy pipeline over real
+forensic data, in the language that would power the real version of that system at scale.
+In mission-critical scenarios like smart cities and kidnapping response, Erlang's guarantees
+matter: many sources streaming simultaneously, always-on processing, isolated failures, and
+real-time classification.
 
 [Software Demo Video](http://youtube.link.goes.here)
 
 # Development Environment
 
-{Describe the tools that you used to develop the software}
-
-{Describe the programming language that you used and any libraries.}
+* Erlang/OTP 29.0.2
+* Visual Studio Code with the Erlang extension by Pierrick Gourlain
 
 # Useful Websites
 
-{Make a list of websites that you found helpful in this project}
-* [Web Site Name](http://url.link.goes.here)
-* [Web Site Name](http://url.link.goes.here)
+* [Erlang Official Downloads](https://www.erlang.org/downloads)
+* [Erlang Standard Library Reference Manual](https://www.erlang.org/doc/apps/stdlib/index.html)
+* [Erlang by Example](https://erlangbyexample.org/)
 
 # Future Work
 
