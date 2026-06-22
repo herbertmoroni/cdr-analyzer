@@ -14,7 +14,7 @@ In mission-critical scenarios like smart cities and kidnapping response, Erlang'
 matter: many sources streaming simultaneously, always-on processing, isolated failures, and
 real-time classification.
 
-[Software Demo Video](http://youtube.link.goes.here)
+<!-- [Software Demo Video](http://youtube.link.goes.here) -->
 
 # Development Environment
 
