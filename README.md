@@ -18,6 +18,9 @@ real-time classification.
 
 # Development Environment
 
+Erlang is a functional, concurrent programming language that runs on the BEAM virtual
+machine. This project uses only the Erlang standard library — no external dependencies.
+
 * Erlang/OTP 29.0.2
 * Visual Studio Code with the Erlang extension by Pierrick Gourlain
 
@@ -29,7 +32,6 @@ real-time classification.
 
 # Future Work
 
-{Make a list of things that you need to fix, improve, and add in the future.}
-* Item 1
-* Item 2
-* Item 3
+* Implement caller ranking by total number of calls
+* Implement tower ranking by call volume and average duration
+* Add duration classification — short, medium, and long calls
