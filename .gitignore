@@ -3,9 +3,4 @@
 
 # Erlang crash dumps
 erl_crash.dump
-
-# Rebar3 build artifacts
-_build/
-deps/
-.rebar/
-rebar.lock
+    
