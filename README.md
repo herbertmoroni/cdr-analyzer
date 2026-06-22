@@ -28,7 +28,7 @@ machine. This project uses only the Erlang standard library — no external depe
 
 # Useful Websites
 
-* [Erlang Standard Library Reference Manual](https://www.erlang.org/doc/apps/stdlib/index.html)
+* [Erlang by Example](https://www.erlang.org/blog/core-erlang-by-example/)
 * [CDR Analysis 101 — What Call Detail Records Reveal in Investigations](https://www.penlink.com/blog/cdr-analysis-101-what-call-detail-records-can-reveal-in-complex-cases/)
 * [CDR Analysis and Cell Tower Mapping for Legal Cases](https://bdforensics.com/specialized-forensics-and-security/call-detail-record-analysis)
 * [Analyzing Call Detail Records with Connected Data](https://policinginsight.com/feature/analyzing-call-detail-records-with-connected-data/)
