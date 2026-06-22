@@ -123,4 +123,30 @@ records() -> [
 run() ->
     io:format("CDR Analyzer~n"),
     io:format("==============~n"),
-    io:format("Records loaded: ~p~n", [length(records())]).
+    io:format("Records loaded: ~p~n", [length(records())]),
+    CallerRanking = rank_callers(records()),
+    print_caller_ranking(CallerRanking).
+
+%% Counts how many calls each origin number made
+%% Returns a list of {CallCount, Origin} tuples sorted descending
+rank_callers(AllRecords) ->
+    CallsPerCaller = lists:foldl(fun count_call_per_caller/2, #{}, AllRecords),
+    SortedCallers = lists:sort(fun sort_descending/2, maps:to_list(CallsPerCaller)),
+    SortedCallers.
+
+%% Increments the call count for this origin in the accumulator map
+%% If origin is new, starts count at 1
+count_call_per_caller({Origin, _Destination, _Date, _Time, _Duration, _Tower, _Neighborhood, _Lat, _Lng}, CallerMap) ->
+    maps:update_with(Origin, fun(Count) -> Count + 1 end, 1, CallerMap).
+
+%% Sorts {Origin, Count} pairs by count, highest first
+sort_descending({_OriginA, CountA}, {_OriginB, CountB}) ->
+    CountA > CountB.
+
+%% Prints the caller ranking to the terminal
+print_caller_ranking(SortedCallers) ->
+    io:format("Callers Ranked by Activity~n"),
+    io:format("--------------------------~n"),
+    lists:foreach(fun({Origin, CallCount}) ->
+        io:format("  Caller ~p  ~p calls~n", [Origin, CallCount])
+    end, SortedCallers).
