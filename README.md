@@ -26,8 +26,6 @@ machine. This project uses only the Erlang standard library — no external depe
 
 # Useful Websites
 
-# Useful Websites
-
 * [Erlang by Example](https://www.erlang.org/blog/core-erlang-by-example/)
 * [CDR Analysis 101 — What Call Detail Records Reveal in Investigations](https://www.penlink.com/blog/cdr-analysis-101-what-call-detail-records-can-reveal-in-complex-cases/)
 * [Analyzing Call Detail Records with Connected Data](https://policinginsight.com/feature/analyzing-call-detail-records-with-connected-data/)
