@@ -1,9 +1,13 @@
 -module(cdr_analyzer).
 -export([run/0]).
 
+
+%%% ==========================================================================
+%%% Data
+%%% ==========================================================================
+
 %% Each record is a tuple with 9 fields:
 %% {Origin, Destination, Date, Time, Duration, Tower, Neighborhood, Latitude, Longitude}
-
 records() -> [
     {1124574510, 1198140528, "10/7/2011",  "7:49:23",  114,  "SPMR06", "MORUMBI",    -23.59263889, -46.70655556},
     {1187037061, 1198498394, "10/7/2011",  "9:11:23",  72,   "SPJP15", "JD PAULISTA", -23.56611111, -46.66038889},
@@ -119,13 +123,22 @@ records() -> [
     {1187037061, 1193539381, "10/16/2011", "19:30:44", 27,   "SPVM28", "JD PAULISTA", -23.58461111, -46.65669444}
 ].
 
-%% Entry point
+
+%%% ==========================================================================
+%%% Entry Point
+%%% ==========================================================================
+
 run() ->
     io:format("CDR Analyzer~n"),
     io:format("==============~n"),
     io:format("Records loaded: ~p~n", [length(records())]),
     CallerRanking = rank_callers(records()),
     print_caller_ranking(CallerRanking).
+
+
+%%% ==========================================================================
+%%% Caller Ranking
+%%% ==========================================================================
 
 %% Counts how many calls each origin number made
 %% Returns a list of {CallCount, Origin} tuples sorted descending
