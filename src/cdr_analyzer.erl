@@ -133,7 +133,10 @@ run() ->
     io:format("==============~n"),
     io:format("Records loaded: ~p~n", [length(records())]),
     CallerRanking = rank_callers(records()),
-    print_caller_ranking(CallerRanking).
+    print_caller_ranking(CallerRanking),
+    io:format("~n"),
+    TowerStats = rank_towers(records()),
+    print_tower_ranking(TowerStats).
 
 
 %%% ==========================================================================
@@ -163,3 +166,36 @@ print_caller_ranking(SortedCallers) ->
     lists:foreach(fun({Origin, CallCount}) ->
         io:format("  Caller ~p  ~p calls~n", [Origin, CallCount])
     end, SortedCallers).
+
+
+%%% =============================================================================
+%%% Tower Ranking
+%%% =============================================================================
+
+%% Counts calls and total duration per tower
+%% Returns a list of {Tower, CallCount, AvgDuration} tuples sorted descending by call count
+rank_towers(AllRecords) ->
+    CallsPerTower = lists:foldl(fun count_call_per_tower/2, #{}, AllRecords),
+    TowerStats = maps:fold(fun compute_tower_average/3, [], CallsPerTower),
+    lists:sort(fun sort_towers_descending/2, TowerStats).
+
+%% Accumulates call count and total duration for each tower
+count_call_per_tower({_Origin, _Destination, _Date, _Time, Duration, Tower, _Neighborhood, _Lat, _Lng}, TowerMap) ->
+    maps:update_with(Tower, fun({Count, Total}) -> {Count + 1, Total + Duration} end, {1, Duration}, TowerMap).
+
+%% Converts {CallCount, TotalDuration} into {Tower, CallCount, AvgDuration}
+compute_tower_average(Tower, {CallCount, TotalDuration}, Acc) ->
+    AvgDuration = TotalDuration div CallCount,
+    [{Tower, CallCount, AvgDuration} | Acc].
+
+%% Sorts tower stats by call count, highest first
+sort_towers_descending({_TowerA, CallCountA, _AvgA}, {_TowerB, CallCountB, _AvgB}) ->
+    CallCountA > CallCountB.
+
+%% Prints the tower ranking to the terminal
+print_tower_ranking(TowerStats) ->
+    io:format("Towers Ranked by Call Volume~n"),
+    io:format("-----------------------------~n"),
+    lists:foreach(fun({Tower, CallCount, AvgDuration}) ->
+        io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration])
+    end, TowerStats).
