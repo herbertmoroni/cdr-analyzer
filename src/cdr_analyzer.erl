@@ -143,23 +143,19 @@ run() ->
 %%% Caller Ranking
 %%% ==========================================================================
 
-%% Counts how many calls each origin number made
-%% Returns a list of {CallCount, Origin} tuples sorted descending
+%% Returns [{Origin, CallCount}] sorted by CallCount descending
 rank_callers(AllRecords) ->
     CallsPerCaller = lists:foldl(fun count_call_per_caller/2, #{}, AllRecords),
     SortedCallers = lists:sort(fun sort_descending/2, maps:to_list(CallsPerCaller)),
     SortedCallers.
 
-%% Increments the call count for this origin in the accumulator map
-%% If origin is new, starts count at 1
+%% Default of 1 handles the first occurrence; subsequent calls increment
 count_call_per_caller({Origin, _Destination, _Date, _Time, _Duration, _Tower, _Neighborhood, _Lat, _Lng}, CallerMap) ->
     maps:update_with(Origin, fun(Count) -> Count + 1 end, 1, CallerMap).
 
-%% Sorts {Origin, Count} pairs by count, highest first
 sort_descending({_OriginA, CountA}, {_OriginB, CountB}) ->
     CountA > CountB.
 
-%% Prints the caller ranking to the terminal
 print_caller_ranking(SortedCallers) ->
     io:format("Callers Ranked by Activity~n"),
     io:format("--------------------------~n"),
@@ -172,27 +168,24 @@ print_caller_ranking(SortedCallers) ->
 %%% Tower Ranking
 %%% =============================================================================
 
-%% Counts calls and total duration per tower
-%% Returns a list of {Tower, CallCount, AvgDuration} tuples sorted descending by call count
+%% Returns [{Tower, CallCount, AvgDuration}] sorted by CallCount descending
 rank_towers(AllRecords) ->
     CallsPerTower = lists:foldl(fun count_call_per_tower/2, #{}, AllRecords),
     TowerStats = maps:fold(fun compute_tower_average/3, [], CallsPerTower),
     lists:sort(fun sort_towers_descending/2, TowerStats).
 
-%% Accumulates call count and total duration for each tower
+%% Default of {1, Duration} handles the first occurrence; subsequent calls accumulate both
 count_call_per_tower({_Origin, _Destination, _Date, _Time, Duration, Tower, _Neighborhood, _Lat, _Lng}, TowerMap) ->
     maps:update_with(Tower, fun({Count, Total}) -> {Count + 1, Total + Duration} end, {1, Duration}, TowerMap).
 
-%% Converts {CallCount, TotalDuration} into {Tower, CallCount, AvgDuration}
+%% Uses integer division (div), so AvgDuration is truncated, not rounded
 compute_tower_average(Tower, {CallCount, TotalDuration}, Acc) ->
     AvgDuration = TotalDuration div CallCount,
     [{Tower, CallCount, AvgDuration} | Acc].
 
-%% Sorts tower stats by call count, highest first
 sort_towers_descending({_TowerA, CallCountA, _AvgA}, {_TowerB, CallCountB, _AvgB}) ->
     CallCountA > CallCountB.
 
-%% Prints the tower ranking to the terminal
 print_tower_ranking(TowerStats) ->
     io:format("Towers Ranked by Call Volume~n"),
     io:format("-----------------------------~n"),
