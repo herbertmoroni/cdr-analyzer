@@ -136,7 +136,10 @@ run() ->
     print_caller_ranking(CallerRanking),
     io:format("~n"),
     TowerStats = rank_towers(records()),
-    print_tower_ranking(TowerStats).
+    print_tower_ranking(TowerStats),
+    io:format("~n"),
+    DurationStats = classify_durations(records()),
+    print_duration_classification(DurationStats).
 
 
 %%% ==========================================================================
@@ -192,3 +195,26 @@ print_tower_ranking(TowerStats) ->
     lists:foreach(fun({Tower, CallCount, AvgDuration}) ->
         io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration])
     end, TowerStats).
+
+
+%%% =============================================================================
+%%% Duration Classification
+%%% =============================================================================
+
+%% Returns {ShortCount, MediumCount, LongCount}
+classify_durations(AllRecords) ->
+    lists:foldl(fun classify_one_call/2, {0, 0, 0}, AllRecords).
+
+classify_one_call({_Origin, _Destination, _Date, _Time, Duration, _Tower, _Neighborhood, _Lat, _Lng}, {Short, Medium, Long}) ->
+    case Duration of
+        D when D < 60  -> {Short + 1, Medium, Long};
+        D when D < 180 -> {Short, Medium + 1, Long};
+        _              -> {Short, Medium, Long + 1}
+    end.
+
+print_duration_classification({Short, Medium, Long}) ->
+    io:format("Call Duration Classification~n"),
+    io:format("----------------------------~n"),
+    io:format("  Short  (under 60s)   ~p calls~n", [Short]),
+    io:format("  Medium (60s - 180s)  ~p calls~n", [Medium]),
+    io:format("  Long   (over 180s)   ~p calls~n", [Long]).
