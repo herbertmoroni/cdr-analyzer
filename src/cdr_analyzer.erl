@@ -189,12 +189,19 @@ compute_tower_average(Tower, {CallCount, TotalDuration}, Acc) ->
 sort_towers_descending({_TowerA, CallCountA, _AvgA}, {_TowerB, CallCountB, _AvgB}) ->
     CallCountA > CallCountB.
 
-print_tower_ranking(TowerStats) ->
-    io:format("Towers Ranked by Call Volume~n"),
-    io:format("-----------------------------~n"),
-    lists:foreach(fun({Tower, CallCount, AvgDuration}) ->
-        io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration])
-    end, TowerStats).
+% print_tower_ranking(TowerStats) ->
+%     io:format("Towers Ranked by Call Volume~n"),
+%     io:format("-----------------------------~n"),
+%     lists:foreach(fun({Tower, CallCount, AvgDuration}) ->
+%         io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration])
+%     end, TowerStats).
+
+%% Recursively prints each tower's stats — base case stops on empty list
+print_tower_ranking([]) ->
+    ok;
+print_tower_ranking([{Tower, CallCount, AvgDuration} | RemainingTowers]) ->
+    io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration]),
+    print_tower_ranking(RemainingTowers).
 
 
 %%% =============================================================================
