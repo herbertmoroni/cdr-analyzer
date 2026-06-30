@@ -121,13 +121,50 @@ classify_worker(Duration, CallerPid) ->
 
 
 %%% =============================================================================
+%%% Scatter-Gather — All Three Analyses Run Concurrently
+%%% =============================================================================
+
+%% Spawns all three analyses as separate, independent processes
+%% Then gathers all three results before printing anything
+%% Unlike Run All (option 4), the three analyses do not wait on each other
+run_concurrent() ->
+    ParentPid = self(),
+    AllRecords = cdr_data:records(),
+
+    spawn(fun() -> ParentPid ! {callers, rank_callers(AllRecords)} end),
+    spawn(fun() -> ParentPid ! {towers, rank_towers(AllRecords)} end),
+    spawn(fun() -> ParentPid ! {durations, classify_durations(AllRecords)} end),
+
+    {CallerRanking, TowerStats, DurationStats} = gather_results(undefined, undefined, undefined),
+
+    print_caller_ranking(CallerRanking),
+    io:format("~n"),
+    print_tower_ranking(TowerStats),
+    io:format("~n"),
+    print_duration_classification(DurationStats).
+
+%% Recursively receives messages until all three results have arrived
+%% Messages can arrive in any order — each is matched by its tag, not by position
+gather_results(Callers, Towers, Durations) when Callers =/= undefined,
+                                                 Towers =/= undefined,
+                                                 Durations =/= undefined ->
+    {Callers, Towers, Durations};
+gather_results(Callers, Towers, Durations) ->
+    receive
+        {callers, Result} -> gather_results(Result, Towers, Durations);
+        {towers, Result} -> gather_results(Callers, Result, Durations);
+        {durations, Result} -> gather_results(Callers, Towers, Result)
+    end.
+
+
+%%% =============================================================================
 %%% Menu
 %%% =============================================================================
 
 %% Interactive menu loop — recursively calls itself after each choice
 %% except when the user selects Exit, which ends the recursion
 menu() ->
-    io:format("~n1. Caller Ranking~n2. Tower Ranking~n3. Duration Classification~n4. Run All~n5. Process Demo~n6. Exit~n"),
+    io:format("~n1. Caller Ranking~n2. Tower Ranking~n3. Duration Classification~n4. Process Demo~n5. Run All (sequential)~n6. Run All (concurrent)~n7. Exit~n"),
     io:format("Choose an option: "),
 
     % io:fread can fail on non-numeric input — caught below instead of crashing
@@ -153,18 +190,21 @@ handle_choice(3) ->
     print_duration_classification(classify_durations(cdr_data:records())),
     menu();
 handle_choice(4) ->
+    classify_with_process(hd(cdr_data:records())),
+    menu();
+handle_choice(5) ->
     print_caller_ranking(rank_callers(cdr_data:records())),
     io:format("~n"),
     print_tower_ranking(rank_towers(cdr_data:records())),
     io:format("~n"),
     print_duration_classification(classify_durations(cdr_data:records())),
     menu();
-handle_choice(5) ->
-    classify_with_process(hd(cdr_data:records())),
-    menu();
 handle_choice(6) ->
+    run_concurrent(),
+    menu();
+handle_choice(7) ->
     io:format("Goodbye~n");
-% catches any number that isn't 1-6
+% catches any number that isn't 1-7
 handle_choice(_) ->
     io:format("Invalid option~n"),
     menu().
