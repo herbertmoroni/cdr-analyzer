@@ -30,7 +30,7 @@ machine. This project uses only the Erlang standard library — no external depe
 2. Start the Erlang shell: `erl`
 3. Compile both modules: `c(cdr_data). c(cdr_analyzer).`
 4. Start the program: `cdr_analyzer:run().`
-5. Choose an option from the interactive menu (1–6)
+5. Choose an option from the interactive menu (1–7)
 
 # Useful Websites
 
