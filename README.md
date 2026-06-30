@@ -1,18 +1,10 @@
 # Overview
 
-CDR Analyzer is a console-based data analysis pipeline written in Erlang. It processes a
-real-world Call Detail Record dataset and produces an investigation summary printed to the
-terminal — activity rankings, tower statistics, and duration classification.
+CDR Analyzer is a console-based data analysis pipeline written in Erlang. It processes a real-world Call Detail Record dataset and produces an investigation summary printed to the terminal — activity rankings, tower statistics, and duration classification.
 
-The domain irony is real — CDR data analyzed in the language that literally powers telecom
-switches worldwide.
+The domain irony is real — CDR data analyzed in the language that literally powers telecom switches worldwide.
 
-The CDR dataset analyzed here is literally the kind of data a real kidnapping investigation
-uses — cell tower pings, timestamps, movement patterns. This is a toy pipeline over real
-forensic data, in the language that would power the real version of that system at scale.
-In mission-critical scenarios like smart cities and kidnapping response, Erlang's guarantees
-matter: many sources streaming simultaneously, always-on processing, isolated failures, and
-real-time classification.
+The CDR dataset analyzed here is literally the kind of data a real kidnapping investigation uses — cell tower pings, timestamps, movement patterns. This is a toy pipeline over real forensic data, in the language that would power the real version of that system at scale. In mission-critical scenarios like smart cities and kidnapping response, Erlang's guarantees matter: many sources streaming simultaneously, always-on processing, isolated failures, and real-time classification.
 
 <!-- [Software Demo Video](http://youtube.link.goes.here) -->
 
@@ -40,12 +32,10 @@ machine. This project uses only the Erlang standard library — no external depe
 
 # Future Work
 
-* Add CSV file ingestion instead of embedding records directly in the source — 
-  would require manual line parsing since Erlang has no built-in CSV library
-* Expand the process demo to classify multiple calls concurrently using a pool 
-  of worker processes instead of one call at a time
-* Add geographic clustering analysis using the latitude/longitude fields already 
-  present in each record
+* Add CSV file ingestion instead of embedding records directly in the source —   would require manual line parsing since Erlang has no built-in CSV library 
+* Expand concurrency further with a worker pool that processes all 112 calls   in parallel, rather than the current scatter-gather across three analysis types
+* Split the analysis logic into separate modules per concern (caller ranking, tower ranking, duration classification) instead of one file, following the same pattern already used for `cdr_data.erl`
+* Add geographic clustering analysis using the latitude/longitude fields already present in each record
 * Add `-spec` type annotations for Dialyzer static analysis
 
 # AI Disclosure
