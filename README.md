@@ -24,6 +24,14 @@ machine. This project uses only the Erlang standard library — no external depe
 * Erlang/OTP 29.0.2
 * Visual Studio Code with the Erlang extension by Pierrick Gourlain
 
+## How to Run
+
+1. Open a terminal in the project's `src` folder
+2. Start the Erlang shell: `erl`
+3. Compile both modules: `c(cdr_data). c(cdr_analyzer).`
+4. Start the program: `cdr_analyzer:run().`
+5. Choose an option from the interactive menu (1–6)
+
 # Useful Websites
 
 * [Erlang by Example](https://www.erlang.org/blog/core-erlang-by-example/)
@@ -32,6 +40,10 @@ machine. This project uses only the Erlang standard library — no external depe
 
 # Future Work
 
-* Implement caller ranking by total number of calls
-* Implement tower ranking by call volume and average duration
-* Add duration classification — short, medium, and long calls
+* Add CSV file ingestion instead of embedding records directly in the source — 
+  would require manual line parsing since Erlang has no built-in CSV library
+* Expand the process demo to classify multiple calls concurrently using a pool 
+  of worker processes instead of one call at a time
+* Add geographic clustering analysis using the latitude/longitude fields already 
+  present in each record
+* Add `-spec` type annotations for Dialyzer static analysis

@@ -97,9 +97,10 @@ print_duration_classification({Short, Medium, Long}) ->
 %% Spawns a separate process to classify one call's duration
 %% Demonstrates Erlang's core identity: isolated processes communicating by messages
 classify_with_process(#cdr{duration = Duration} = Record) ->
-    % spawn creates a new lightweight process running classify_worker
-    % self() is this process's ID, passed so the worker knows where to reply
-    WorkerPid = spawn(fun() -> classify_worker(Duration, self()) end),
+    % self() must be captured HERE, in the parent process, before spawning
+    % inside the fun, self() would return the worker's own Pid, not the parent's
+    ParentPid = self(),
+    WorkerPid = spawn(fun() -> classify_worker(Duration, ParentPid) end),
 
     % blocks here until a message matching {classification, _} arrives
     receive
