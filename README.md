@@ -47,3 +47,9 @@ machine. This project uses only the Erlang standard library — no external depe
 * Add geographic clustering analysis using the latitude/longitude fields already 
   present in each record
 * Add `-spec` type annotations for Dialyzer static analysis
+
+# AI Disclosure
+
+I used Claude (Anthropic) to debug issues — such as a process identity bug involving closures and `self()` — and to discuss design tradeoffs like module structure, records versus tuples, and the concurrency model. I used AI to proofread this README since English is not my first language.
+
+All design decisions, code review, and final implementation choices were mine.
