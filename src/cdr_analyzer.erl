@@ -1,6 +1,6 @@
 -module(cdr_analyzer).
 -export([run/0, menu/0]).
-%-export([run/0]).
+-include("cdr.hrl").
 
 
 %%% ==========================================================================
@@ -32,7 +32,7 @@ rank_callers(AllRecords) ->
     SortedCallers.
 
 %% Default of 1 handles the first occurrence; subsequent calls increment
-count_call_per_caller({Origin, _Destination, _Date, _Time, _Duration, _Tower, _Neighborhood, _Lat, _Lng}, CallerMap) ->
+count_call_per_caller(#cdr{origin = Origin}, CallerMap) ->
     maps:update_with(Origin, fun(Count) -> Count + 1 end, 1, CallerMap).
 
 sort_descending({_OriginA, CountA}, {_OriginB, CountB}) ->
@@ -57,7 +57,7 @@ rank_towers(AllRecords) ->
     lists:sort(fun sort_towers_descending/2, TowerStats).
 
 %% Default of {1, Duration} handles the first occurrence; subsequent calls accumulate both
-count_call_per_tower({_Origin, _Destination, _Date, _Time, Duration, Tower, _Neighborhood, _Lat, _Lng}, TowerMap) ->
+count_call_per_tower(#cdr{tower = Tower, duration = Duration}, TowerMap) ->
     maps:update_with(Tower, fun({Count, Total}) -> {Count + 1, Total + Duration} end, {1, Duration}, TowerMap).
 
 %% Uses integer division (div), so AvgDuration is truncated, not rounded
@@ -67,13 +67,6 @@ compute_tower_average(Tower, {CallCount, TotalDuration}, Acc) ->
 
 sort_towers_descending({_TowerA, CallCountA, _AvgA}, {_TowerB, CallCountB, _AvgB}) ->
     CallCountA > CallCountB.
-
-% print_tower_ranking(TowerStats) ->
-%     io:format("Towers Ranked by Call Volume~n"),
-%     io:format("-----------------------------~n"),
-%     lists:foreach(fun({Tower, CallCount, AvgDuration}) ->
-%         io:format("  Tower ~s  ~p calls  avg ~ps~n", [Tower, CallCount, AvgDuration])
-%     end, TowerStats).
 
 %% Recursively prints each tower's stats — base case stops on empty list
 print_tower_ranking([]) ->
@@ -91,7 +84,7 @@ print_tower_ranking([{Tower, CallCount, AvgDuration} | RemainingTowers]) ->
 classify_durations(AllRecords) ->
     lists:foldl(fun classify_one_call/2, {0, 0, 0}, AllRecords).
 
-classify_one_call({_Origin, _Destination, _Date, _Time, Duration, _Tower, _Neighborhood, _Lat, _Lng}, {Short, Medium, Long}) ->
+classify_one_call(#cdr{duration = Duration}, {Short, Medium, Long}) ->
     case Duration of
         D when D < 60  -> {Short + 1, Medium, Long};
         D when D < 180 -> {Short, Medium + 1, Long};
