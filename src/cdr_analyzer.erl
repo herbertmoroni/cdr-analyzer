@@ -1,5 +1,6 @@
 -module(cdr_analyzer).
--export([run/0]).
+-export([run/0, menu/0]).
+%-export([run/0]).
 
 
 %%% ==========================================================================
@@ -225,3 +226,38 @@ print_duration_classification({Short, Medium, Long}) ->
     io:format("  Short  (under 60s)   ~p calls~n", [Short]),
     io:format("  Medium (60s - 180s)  ~p calls~n", [Medium]),
     io:format("  Long   (over 180s)   ~p calls~n", [Long]).
+
+
+%%% =============================================================================
+%%% Menu
+%%% =============================================================================
+
+%% Interactive menu loop — recursively calls itself after each choice
+%% except when the user selects Exit, which ends the recursion
+menu() ->
+    io:format("~n1. Caller Ranking~n2. Tower Ranking~n3. Duration Classification~n4. Run All~n5. Exit~n"),
+    io:format("Choose an option: "),
+
+    % io:fread reads input from the terminal and parses it as an integer (~d)
+    {ok, [Choice]} = io:fread("", "~d"),
+
+    case Choice of
+        1 ->
+            print_caller_ranking(rank_callers(records())),
+            menu();
+        2 ->
+            print_tower_ranking(rank_towers(records())),
+            menu();
+        3 ->
+            print_duration_classification(classify_durations(records())),
+            menu();
+        4 ->
+            run(),
+            menu();
+        5 ->
+            io:format("Goodbye~n");
+        % catches anything that isn't 1-5, including invalid input
+        _ ->
+            io:format("Invalid option~n"),
+            menu()
+    end.
