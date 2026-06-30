@@ -1,5 +1,5 @@
 -module(cdr_analyzer).
--export([run/0, menu/0]).
+-export([run/0]).
 -include("cdr.hrl").
 
 
@@ -7,18 +7,9 @@
 %%% Entry Point
 %%% ==========================================================================
 
+%% The only job of run/0 is to start the interactive menu
 run() ->
-    io:format("CDR Analyzer~n"),
-    io:format("==============~n"),
-    io:format("Records loaded: ~p~n", [length(cdr_data:records())]),
-    CallerRanking = rank_callers(cdr_data:records()),
-    print_caller_ranking(CallerRanking),
-    io:format("~n"),
-    TowerStats = rank_towers(cdr_data:records()),
-    print_tower_ranking(TowerStats),
-    io:format("~n"),
-    DurationStats = classify_durations(cdr_data:records()),
-    print_duration_classification(DurationStats).
+    menu().
 
 
 %%% ==========================================================================
@@ -100,35 +91,79 @@ print_duration_classification({Short, Medium, Long}) ->
 
 
 %%% =============================================================================
+%%% Process Demo — Concurrency via Message Passing
+%%% =============================================================================
+
+%% Spawns a separate process to classify one call's duration
+%% Demonstrates Erlang's core identity: isolated processes communicating by messages
+classify_with_process(#cdr{duration = Duration} = Record) ->
+    % spawn creates a new lightweight process running classify_worker
+    % self() is this process's ID, passed so the worker knows where to reply
+    WorkerPid = spawn(fun() -> classify_worker(Duration, self()) end),
+
+    % blocks here until a message matching {classification, _} arrives
+    receive
+        {classification, Label} ->
+            io:format("  Caller ~p classified as ~s by process ~p~n",
+                      [Record#cdr.origin, Label, WorkerPid])
+    end.
+
+%% Runs inside the spawned process — classifies, then sends result back
+classify_worker(Duration, CallerPid) ->
+    Label = case Duration of
+        D when D < 60  -> "short";
+        D when D < 180 -> "medium";
+        _              -> "long"
+    end,
+    % ! is the send operator — sends a message to CallerPid's mailbox
+    CallerPid ! {classification, Label}.
+
+
+%%% =============================================================================
 %%% Menu
 %%% =============================================================================
 
 %% Interactive menu loop — recursively calls itself after each choice
 %% except when the user selects Exit, which ends the recursion
 menu() ->
-    io:format("~n1. Caller Ranking~n2. Tower Ranking~n3. Duration Classification~n4. Run All~n5. Exit~n"),
+    io:format("~n1. Caller Ranking~n2. Tower Ranking~n3. Duration Classification~n4. Run All~n5. Process Demo~n6. Exit~n"),
     io:format("Choose an option: "),
 
-    % io:fread reads input from the terminal and parses it as an integer (~d)
-    {ok, [Choice]} = io:fread("", "~d"),
-
-    case Choice of
-        1 ->
-            print_caller_ranking(rank_callers(cdr_data:records())),
+    % io:fread can fail on non-numeric input — caught below instead of crashing
+    case io:fread("", "~d") of
+        {ok, [Choice]} ->
+            handle_choice(Choice);
+        {error, _Reason} ->
+            io:format("Invalid input — please enter a number~n"),
             menu();
-        2 ->
-            print_tower_ranking(rank_towers(cdr_data:records())),
-            menu();
-        3 ->
-            print_duration_classification(classify_durations(cdr_data:records())),
-            menu();
-        4 ->
-            run(),
-            menu();
-        5 ->
-            io:format("Goodbye~n");
-        % catches anything that isn't 1-5, including invalid input
-        _ ->
-            io:format("Invalid option~n"),
-            menu()
+        eof ->
+            io:format("Goodbye~n")
     end.
+
+%% Separated from menu/0 so the input parsing and the choice handling
+%% each stay focused on one responsibility
+handle_choice(1) ->
+    print_caller_ranking(rank_callers(cdr_data:records())),
+    menu();
+handle_choice(2) ->
+    print_tower_ranking(rank_towers(cdr_data:records())),
+    menu();
+handle_choice(3) ->
+    print_duration_classification(classify_durations(cdr_data:records())),
+    menu();
+handle_choice(4) ->
+    print_caller_ranking(rank_callers(cdr_data:records())),
+    io:format("~n"),
+    print_tower_ranking(rank_towers(cdr_data:records())),
+    io:format("~n"),
+    print_duration_classification(classify_durations(cdr_data:records())),
+    menu();
+handle_choice(5) ->
+    classify_with_process(hd(cdr_data:records())),
+    menu();
+handle_choice(6) ->
+    io:format("Goodbye~n");
+% catches any number that isn't 1-6
+handle_choice(_) ->
+    io:format("Invalid option~n"),
+    menu().
